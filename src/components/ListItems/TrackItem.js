@@ -92,6 +92,7 @@ const style = StyleSheet.create({
     container: {
         flexDirection: 'row',
         width: '100%',
+        height: 100,
         alignItems: 'center',
         paddingLeft: 14,
         paddingRight: 14,

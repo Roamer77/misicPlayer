@@ -21,6 +21,7 @@ const ToolBar = ({state, descriptors, navigation}) => {
 
     const focusedOptions = descriptors[state.routes[state.index].key].options;
     const {width}=Dimensions.get('window');
+
     if (focusedOptions && focusedOptions.tabBarVisible === false) {
         return null;
     }
@@ -50,7 +51,7 @@ const ToolBar = ({state, descriptors, navigation}) => {
                 let res = routs.find((rout) => rout.routName === 'CurrentTrack');
                 navigation.navigate(res.routName);
             }}
-                              style={{position: 'absolute', zIndex: 21, left: width/2.4, bottom: 19}}>
+                              style={{position: 'absolute', zIndex: 21, left: width>350? width/2.35:width/2.4 , bottom: 19}}>
                 <ActionButton/>
             </TouchableOpacity>
             <ToolBarBackground width={width} height={100} fill={'white'}/>

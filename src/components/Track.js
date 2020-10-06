@@ -11,7 +11,7 @@ const Track=()=>{
         <View style={{flexDirection:'row',width:'90%',marginLeft:35,marginTop:20,marginRight:35}}>
             <Text style={[styles.timeText,{paddingRight:20}]}>02:54</Text>
             <Slider
-                style={{width:'60%',transform: [{ scaleX: 1.2 }, { scaleY: 1.3 }]}}
+                style={{width:'60%'}}
                 minimumValue={0}
                 maximumValue={1}
                 minimumTrackTintColor={'#ff3543'}

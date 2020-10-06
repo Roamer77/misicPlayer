@@ -36,7 +36,7 @@ const RenderLeftAction = ({progress, dragX, onAddPress, onDownloadPress, onDelet
 };
 
 
-const TrackItem = ({id,onDeletePress,songName,songAuthor}) => {
+const TrackItem = ({id,onDeletePress,songName,songAuthor,index}) => {
     const iconSize = 20;
     const onAddPress = () => console.log('onAdd press');
     const onDownloadPress = () => console.log('onDownload press');
@@ -70,10 +70,10 @@ const TrackItem = ({id,onDeletePress,songName,songAuthor}) => {
                                   onDownloadPress={onDownloadPress}/>
             );
         } }>
-            <View style={[style.container, {marginTop: 20}, ]}>
+            <View style={[style.container,{paddingTop:index!==0? 12:0} ]}>
 
-                <Animated.View style={{flex: 0.9,flexDirection:'row', transform: [{ translateX: animatedValue }] }}>
-                    <Image source={require('../../assets/music_placeholder.png')} style={{width: 60, height: 60}}/>
+                <Animated.View style={{flex: 0.9,flexDirection:'row',alignItems:'center', transform: [{ translateX: animatedValue }] }}>
+                    <Image source={require('../../assets/music_placeholder.png')} style={style.image}/>
                     <View style={{flexDirection:'column'}}>
                         <Text style={{fontWeight: 'bold'}}>{songName}</Text>
                         <Text>{songAuthor}</Text>
@@ -92,10 +92,11 @@ const style = StyleSheet.create({
     container: {
         flexDirection: 'row',
         width: '100%',
-        height: 100,
         alignItems: 'center',
-        paddingLeft: 14,
-        paddingRight: 14,
+    },
+    image:{
+        width: 60, height: 60,
+        borderRadius: 6,
     },
     leftActionIcon: {
         width: 37,

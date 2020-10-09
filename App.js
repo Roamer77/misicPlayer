@@ -1,11 +1,14 @@
-import {StatusBar} from 'expo-status-bar';
+
 import React, {useEffect, useState} from 'react';
 import {StyleSheet, UIManager} from 'react-native';
 
-import Player from "./src/components/Player";
+
 import {NavigationContainer} from "@react-navigation/native";
-import TabNavigator from "./src/navogation/TabNavigator";
+
 import {navigationRef} from "./src/navogation/RootNavigation";
+
+import SideMenuNavigator from "./src/navogation/DrawerNavigator";
+
 
 if (
     Platform.OS === "android" &&
@@ -24,9 +27,9 @@ export default function App() {
     }, [isMute]);*/
 
     return (
-        <NavigationContainer ref={navigationRef}>
-          <TabNavigator/>
-        </NavigationContainer>
+            <NavigationContainer ref={navigationRef}>
+                <SideMenuNavigator/>
+            </NavigationContainer>
     );
 }
 

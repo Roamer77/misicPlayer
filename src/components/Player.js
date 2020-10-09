@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect,useRef} from 'react';
 import {AntDesign, Ionicons, Feather} from '@expo/vector-icons';
 import Constants from 'expo-constants';
 import {View, StyleSheet, Image, Text, TouchableOpacity, Pressable} from 'react-native';
@@ -8,13 +8,24 @@ import navigation from '../navogation/RootNavigation';
 import Track from "./Track";
 import SvgIcon from "./SvgIcons/SvgIcon";
 import {playerIcons} from "./SvgIcons/listOfIconsPathes";
+import LottieView from "lottie-react-native";
 
 
 const Player = () => {
     const toolBarIcons1 = ['download', 'reload1', 'sound'];
     const toolBarIcons = [playerIcons.Downloader, playerIcons.louder];
     const iconColor = '#a9a9a9';
+    const waveAnimRef=useRef(null);
     const [isPlayBtnPressed, setIsPlayBtnPressed] = useState(false);
+
+    useEffect(()=>{
+        if(waveAnimRef){
+           if(isPlayBtnPressed)
+               waveAnimRef.current.play()
+            else
+               waveAnimRef.current.reset()
+        }
+    },[isPlayBtnPressed]);
     return (
         <View style={styles.container}>
             <View style={styles.imagePart}>
@@ -22,6 +33,8 @@ const Player = () => {
                     <AntDesign name="arrowleft" size={30} color="#111"/>
                 </Pressable>
                 <Image source={require('../assets/music_placeholder.png')} style={styles.backgroundImage}/>
+                <LottieView ref={waveAnimRef} style={styles.waves} loop autoPlay
+                             source={require('../assets/animations/wave.json')}/>
             </View>
             <View style={styles.playerUI}>
                 <View style={{alignItems: 'center', paddingTop: 40}}>
@@ -52,7 +65,7 @@ const Player = () => {
                         <SvgIcon opacity={1} height={28} width={50} fill={iconColor} fillOpacity={1}
                                  d={playerIcons["2"].path}/>
                     </TouchableOpacity>
-                    <PlayerActionButton onPlayPress={() => setIsPlayBtnPressed(!isPlayBtnPressed)}
+                    <PlayerActionButton onPlayPress={() =>setIsPlayBtnPressed(!isPlayBtnPressed)}
                                         isPressed={isPlayBtnPressed}/>
                     <TouchableOpacity onPress={() => console.log('next')}>
                         <SvgIcon opacity={1} height={28} width={50} fill={iconColor} fillOpacity={1}
@@ -68,6 +81,11 @@ export default Player;
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+    },
+    waves:{
+        position:'absolute',
+        top:77,
+        width:'100%',
     },
     buttonBack: {
         width: 50,

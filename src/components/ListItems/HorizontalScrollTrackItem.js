@@ -19,7 +19,6 @@ export default HorizontalScrollTrackItem;
 const styles=StyleSheet.create({
     image:{
         width: 160, height: 160,
-        backgroundColor:'rgba(255,53,67,0.7)',
         borderRadius:5,
     },
     songName: {

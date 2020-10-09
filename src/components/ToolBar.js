@@ -4,6 +4,9 @@ import ActionButton from "./SvgIcons/ActionButton";
 import {pathes} from './SvgIcons/listOfIconsPathes';
 import SvgIcon from "./SvgIcons/SvgIcon";
 import {Svg, Path} from "react-native-svg";
+import {toolBarHeight} from "../constants/Constants";
+import Animated from 'react-native-reanimated';
+import ReAnimated from "react-native-reanimated";
 
 
 const ToolBarBackground = ({width, height, fill}) => (
@@ -17,7 +20,7 @@ const ToolBarBackground = ({width, height, fill}) => (
 
 );
 
-const ToolBar = ({state, descriptors, navigation}) => {
+const ToolBar = ({state, descriptors, navigation,drawerProgress}) => {
 
     const focusedOptions = descriptors[state.routes[state.index].key].options;
     const {width}=Dimensions.get('window');
@@ -27,7 +30,8 @@ const ToolBar = ({state, descriptors, navigation}) => {
     }
 
     const [currentTabSelected, setCurrentTab] = useState(0);
-    const routs = [{
+    const routs = [
+        {
         id: 1,
         routName: 'Home'
     }, {
@@ -43,18 +47,22 @@ const ToolBar = ({state, descriptors, navigation}) => {
         id: 5,
         routName: 'CurrentTrack'
     },];
-
+    const translateYForToolBar = ReAnimated.interpolate(drawerProgress, {
+        inputRange: [0, 1],
+        outputRange: [0, 80],
+    });
 
     return (
-        <View style={{height: 65, position: 'absolute', bottom: 0, left: 0, backgroundColor: 'transparent', zIndex: 1}}>
-            <TouchableOpacity onPress={() => {
+        <Animated.View style={{height: 65, position: 'absolute', bottom: 0, left: 0, backgroundColor: 'transparent', zIndex: 1,translateY:translateYForToolBar}}>
+
+            <TouchableOpacity  onPress={() => {
                 let res = routs.find((rout) => rout.routName === 'CurrentTrack');
                 navigation.navigate(res.routName);
             }}
                               style={{position: 'absolute', zIndex: 21, left: width>350? width/2.35:width/2.4 , bottom: 19}}>
                 <ActionButton/>
             </TouchableOpacity>
-            <ToolBarBackground width={width} height={100} fill={'white'}/>
+            <ToolBarBackground width={width} height={toolBarHeight} fill={'white'}/>
             <View style={{
                 flexDirection: 'row',
                 width: '100%',
@@ -77,7 +85,7 @@ const ToolBar = ({state, descriptors, navigation}) => {
                     </TouchableOpacity>
                 ))}
             </View>
-        </View>
+        </Animated.View>
     );
 };
 export default ToolBar;

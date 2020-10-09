@@ -27,11 +27,13 @@ const ActionButton = () => {
     </View>);
 };
 
-function TabNavigator() {
+const  TabNavigator=( {drawerProgress})=> {
 
     return (
-        <Tab.Navigator tabBarOptions={{showLabel: false, }}  tabBar={(props)=>(<ToolBar {...props}/>)}>
-            <Tab.Screen name="Home" component={Home} options={{}}/>
+        <Tab.Navigator tabBarOptions={{showLabel: false, style:{backgroundColor:'#111'}}}
+                       tabBar={(props)=>(<ToolBar {...props} drawerProgress={drawerProgress} />)}>
+            <Tab.Screen  name="Home">{()=><Home drawerProgress={drawerProgress} />}</Tab.Screen>
+
             <Tab.Screen name="Tv" component={TV} options={{}}/>
             <Tab.Screen name="CurrentTrack" component={CurrentTrack} options={{
                 tabBarVisible: false,}}/>
@@ -39,6 +41,6 @@ function TabNavigator() {
             <Tab.Screen name="Notifications" component={Notifications} options={{}}/>
         </Tab.Navigator>
     );
-}
+};
 
 export default TabNavigator;

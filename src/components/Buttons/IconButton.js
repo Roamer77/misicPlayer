@@ -1,10 +1,10 @@
 import  React from 'react';
 import {StyleSheet,Pressable} from 'react-native';
 import { Feather } from '@expo/vector-icons';
-const IconButton=({onPress,backgroundColor,textColor,styles})=>{
+const IconButton=({onPress,backgroundColor, iconColor,styles,iconName})=>{
     return(
         <Pressable onPress={onPress} style={[style.container,{backgroundColor:backgroundColor},styles]}>
-            <Feather name="share-2" size={20} color={textColor} />
+            <Feather name={iconName} size={20} color={iconColor} />
         </Pressable>
     );
 };

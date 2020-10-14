@@ -1,8 +1,22 @@
-import { Audio } from 'expo-av';
-
+import {Audio} from 'expo-av';
+import * as MediaLibrary from "expo-media-library";
+import placeHolder1 from '../assets/plaseholders/1.jpeg';
+import placeHolder2 from '../assets/plaseholders/2.jpg';
+import placeHolder3 from '../assets/plaseholders/3.png';
+import placeHolder4 from '../assets/plaseholders/4.jpg';
+import placeHolder5 from '../assets/plaseholders/5.png';
+import placeHolder6 from '../assets/plaseholders/6.jpg';
 let soundObject;
 
-export const initConfig=async ()=>{
+const getRandomPlaceHolder=()=>{
+    const data=[placeHolder1,placeHolder2,placeHolder3,placeHolder4,placeHolder5,placeHolder6];
+    const max=data.length-1;
+    const min=0;
+    let res=Math.floor(Math.random() * (max - min + 1)) + min;
+    return  data[res];
+};
+
+export const initConfig = async (trackURI) => {
     try {
         await Audio.setAudioModeAsync({
             allowsRecordingIOS: false,
@@ -13,38 +27,38 @@ export const initConfig=async ()=>{
             staysActiveInBackground: true,
             playThroughEarpieceAndroid: true
         });
-        soundObject= new Audio.Sound();
+        soundObject = new Audio.Sound();
         soundObject.setOnPlaybackStatusUpdate(onPlaybackStatusUpdate);
 
-        await soundObject.loadAsync(require('./4048.mp3'),{volume:1});
+        await soundObject.loadAsync({uri: trackURI});
     } catch (e) {
         console.log(e)
     }
 };
-export const stopPlaying= async ()=>{
+export const stopPlaying = async () => {
     await soundObject.stopAsync();
 };
-export  const startPlaying=async ()=>{
+export const startPlaying = async () => {
     await soundObject.playAsync();
 };
 
-export const mute=async(isMuted)=>{
-    try{
-        if(soundObject)
+export const mute = async (isMuted) => {
+    try {
+        if (soundObject)
             await soundObject.setIsMutedAsync(isMuted);
-    }catch (e) {
-       console.log(e);
+    } catch (e) {
+        console.log(e);
     }
 };
 
-export const getCurrentTrackDuration=async ()=>{
-    try{
-        if(soundObject){
-            let {durationMillis}= await soundObject.getStatusAsync();
+export const getCurrentTrackDuration = async () => {
+    try {
+        if (soundObject) {
+            let {durationMillis} = await soundObject.getStatusAsync();
             return getMMSSFromMillis(durationMillis);
         }
         return null;
-    }catch (e) {
+    } catch (e) {
         console.log(e);
     }
 };
@@ -58,15 +72,15 @@ const onPlaybackStatusUpdate = playbackStatus => {
         }
     } else {
         // Update your UI for the loaded state
-       if(playbackStatus.progressUpdateIntervalMillis){
+        if (playbackStatus.progressUpdateIntervalMillis) {
 
-       }
-       if(playbackStatus.positionMillis  ){
-           console.log('positionMillis ',getMMSSFromMillis(playbackStatus.positionMillis) )
-       }
+        }
+        if (playbackStatus.positionMillis) {
+            console.log('positionMillis ', getMMSSFromMillis(playbackStatus.positionMillis))
+        }
         if (playbackStatus.isPlaying) {
             // Update your UI for the playing state
-           // console.log('isPlaying',playbackStatus.isPlaying)
+            // console.log('isPlaying',playbackStatus.isPlaying)
         } else {
             // Update your UI for the paused state
         }
@@ -81,8 +95,11 @@ const onPlaybackStatusUpdate = playbackStatus => {
 
     }
 };
-const getMMSSFromMillis=(millis)=> {
+const getMMSSFromMillis = (millis) => {
     const totalSeconds = millis / 1000;
+    normalRepresentationOfTime(totalSeconds);
+};
+const normalRepresentationOfTime=(totalSeconds)=>{
     const seconds = Math.floor(totalSeconds % 60);
     const minutes = Math.floor(totalSeconds / 60);
 
@@ -94,4 +111,22 @@ const getMMSSFromMillis=(millis)=> {
         return string;
     };
     return padWithZero(minutes) + ":" + padWithZero(seconds);
+};
+
+export const getListOfAudiosFromFileSystem = async () => {
+    const media = await MediaLibrary.getAssetsAsync({
+        mediaType: MediaLibrary.MediaType.audio,
+    });
+    let res=[];
+    media.assets.forEach((item)=>{
+        res.push({
+            songName: item.filename,
+            songAuthor:'',
+            uri:item.uri,
+            duration:normalRepresentationOfTime(item.duration) ,
+            id:item.id,
+            image:getRandomPlaceHolder(),
+        });
+    });
+    return  res;
 };

@@ -1,9 +1,11 @@
-import React from 'react';
+import React,{useEffect} from 'react';
 import {Path, Svg} from 'react-native-svg';
-import {Animated, View} from 'react-native';
+import { View} from 'react-native';
+import ReAnimated,{color} from 'react-native-reanimated'
 
-const SvgIcon = ({opacity = 0.4, fill = '#0F1E36', width = 25, height = 21, fillOpacity = 0.5, style, d}) => {
-    const AnimatedPath = Animated.createAnimatedComponent(Path);
+const SvgIcon = ({opacity = 0.4, fill, width = 25, height = 21, fillOpacity = 0.5, style, d}) => {
+    const AnimatedPath = ReAnimated.createAnimatedComponent(Path);
+
     return (
         <View style={style}>
             <Svg width={width} height={height} viewBox="0 0 25 26" fill="none">

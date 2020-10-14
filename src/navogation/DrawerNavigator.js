@@ -4,13 +4,26 @@ import { createDrawerNavigator } from '@react-navigation/drawer';
 import TabNavigator from "./TabNavigator";
 import CustomDrawerLayout from "../components/DrawerLayout";
 import Animated from 'react-native-reanimated';
-import {View} from 'react-native';
+
 import Notifications from "../screens/Notifications";
+import { StackActions,CommonActions   } from '@react-navigation/native';
 
 
 const Drawer = createDrawerNavigator();
 
-const  SideMenuNavigator =() =>{
+const  SideMenuNavigator =({navigation}) =>{
+    navigation.dispatch(state => {
+
+        const routes = state.routes.filter(r => r.name !== 'Tips');
+
+        return CommonActions.reset({
+            ...state,
+            routes,
+            index: routes.length - 1,
+        });
+    });
+
+
     const [progress, setProgress] = useState(new Animated.Value(0));
     const scale = Animated.interpolate(progress, {
         inputRange: [0, 1],

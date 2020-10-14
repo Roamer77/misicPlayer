@@ -1,12 +1,12 @@
 import React,{useState,useEffect} from 'react';
 import {View, Text, StyleSheet, Image, Animated,Pressable} from 'react-native';
-import LottiView from 'lottie-react-native';
+
 import {Ionicons} from '@expo/vector-icons';
 import Swipeable from 'react-native-gesture-handler/Swipeable';
 import SvgIcon from "../SvgIcons/SvgIcon";
 import {tackItemIcons} from '../SvgIcons/listOfIconsPathes';
 import {Extrapolate} from "react-native-reanimated";
-
+import {songNameRepresentation} from "../../api/textTransformations";
 
 const RenderLeftAction = ({progress, dragX, onAddPress, onDownloadPress, onDeletePress,iconSize,onDragChange}) => {
 
@@ -35,13 +35,14 @@ const RenderLeftAction = ({progress, dragX, onAddPress, onDownloadPress, onDelet
     );
 };
 
+const TrackItem = ({id,onDeletePress,onItemPress,songName,songAuthor,index,songDuration,image}) => {
 
-const TrackItem = ({id,onDeletePress,songName,songAuthor,index}) => {
     const iconSize = 20;
     const onAddPress = () => console.log('onAdd press');
     const onDownloadPress = () => console.log('onDownload press');
 
     const animatedValue=new Animated.Value(0);
+    const animatedWidth=new Animated.Value(200);
 
     const changeTransitinX=()=>{
         Animated.timing(animatedValue,{
@@ -57,9 +58,23 @@ const TrackItem = ({id,onDeletePress,songName,songAuthor,index}) => {
             useNativeDriver:true,
         }).start();
     };
+    const changeSongNaveWidth=()=>{
+        Animated.timing(animatedWidth,{
+            toValue:100,
+            duration:200,
+            useNativeDriver:false,
+        }).start();
+    };
+    const changeBackSongNaveWidth=()=>{
+        Animated.timing(animatedWidth,{
+            toValue:200,
+            duration:200,
+            useNativeDriver:false,
+        }).start();
+    };
     return (
-        <Swipeable onSwipeableRightWillOpen={()=>changeTransitinX()}
-                   onSwipeableWillClose={()=>changeBackTransitinX()}
+        <Swipeable onSwipeableRightWillOpen={()=>{changeTransitinX(); changeSongNaveWidth() }}
+                   onSwipeableWillClose={()=>{changeBackTransitinX(); changeBackSongNaveWidth() }}
                    renderRightActions={(progress, dragX) =>{
             return (
                 <RenderLeftAction iconSize={iconSize}
@@ -70,19 +85,18 @@ const TrackItem = ({id,onDeletePress,songName,songAuthor,index}) => {
                                   onDownloadPress={onDownloadPress}/>
             );
         } }>
-            <View style={[style.container,{paddingTop:index!==0? 12:0} ]}>
+            <Pressable onPress={onItemPress} style={[style.container,{paddingTop:index!==0? 12:0} ]}>
 
                 <Animated.View style={{flex: 0.9,flexDirection:'row',alignItems:'center', transform: [{ translateX: animatedValue }] }}>
-                    <Image source={require('../../assets/music_placeholder.png')} style={style.image}/>
-                    <View style={{flexDirection:'column'}}>
-                        <Text style={{fontWeight: 'bold'}}>{songName}</Text>
-                        <Text>{songAuthor}</Text>
-                    </View>
+                    <Image source={image} style={style.image}/>
+                    <Animated.View style={{flexDirection:'column',paddingLeft:12,width:animatedWidth}}>
+                        <Text style={{fontWeight: 'bold'}}>{songNameRepresentation(songName,25)}</Text>
+                    </Animated.View>
                 </Animated.View>
                 <View style={{flex: 0.2}}>
-                    <Text>3:13</Text>
+                    <Text>{songDuration}</Text>
                 </View>
-            </View>
+            </Pressable>
         </Swipeable>
     );
 };
@@ -95,7 +109,7 @@ const style = StyleSheet.create({
         alignItems: 'center',
     },
     image:{
-        width: 60, height: 60,
+        width: 45, height: 45,
         borderRadius: 6,
     },
     leftActionIcon: {

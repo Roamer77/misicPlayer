@@ -1,5 +1,5 @@
 import {configureStore} from '@reduxjs/toolkit';
-import {drawerSlice} from '../reducers/drawerReducer';
+import trackReducer from './traksSlice';
 export const store = configureStore({
-    reducer: drawerSlice.reducer
+    reducer: trackReducer,
 });

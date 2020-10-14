@@ -1,26 +1,50 @@
-import React,{useState} from 'react';
-import { StyleSheet} from 'react-native';
+import React, {useState, useEffect} from 'react';
+import {StyleSheet, View,Button,Text} from 'react-native';
+import {CAMERA, CAMERA_ROLL, usePermissions} from 'expo-permissions';
+import * as MediaLibrary from 'expo-media-library';
+import {initConfig, startPlaying} from "../api/playerApi";
+import * as DocumentPicker from 'expo-document-picker';
+import {useDispatch,useSelector} from "react-redux";
+import {addCurrentTrack} from "../redux/store/traksSlice";
+import * as Notification from 'expo-notifications';
 
-import ReAnimated  from "react-native-reanimated";
-
-const Notifications=({animStyle})=>{
-    const scale = ReAnimated.interpolate(animStyle, {
-        inputRange: [0, 1],
-        outputRange: [1, 0.8],
+const Notifications = ({animStyle}) => {
+    const [permission, askForPermission] = usePermissions(CAMERA_ROLL, { ask: true });
+    const [isMute, setMute] = useState(false);
+    Notification.setNotificationHandler({
+        handleNotification: async () => ({
+            shouldShowAlert: true,
+            shouldPlaySound: false,
+            shouldSetBadge: false,
+        }),
     });
-    const borderRadius = ReAnimated.interpolate(animStyle, {
-        inputRange: [0, 1],
-        outputRange: [0, 16],
-    });
-    return(
-        <ReAnimated.View style={[{justifyContent:'center',alignItems:'center',flex:1,transform:[{scale:scale}] }]}>
+    const showNotification = async () => {
+        let myNot= await Notification.presentNotificationAsync({
+            sticky:false,
+            priority:'low',
+            autoDismiss:true,
+            sound:false,
+            title: 'Look at that notification',
+            body: "I'm so proud of myself!",
+        });
 
+    };
 
-        </ReAnimated.View>
+    return (
+        <View style={{flex: 1,alignItems:'center',justifyContent:'center'}}>
+            <Button title={'Press'} onPress={showNotification}/>
+        </View>
     );
 };
 export default Notifications;
 
-const style=StyleSheet.create({
+const styles = StyleSheet.create({
+    header: {
+        width: "100%",
 
+        height: 200,
+        zIndex:12,
+        backgroundColor: "#F51E38",
+
+    },
 });

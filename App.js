@@ -9,6 +9,12 @@ import {navigationRef} from "./src/navogation/RootNavigation";
 
 import SideMenuNavigator from "./src/navogation/DrawerNavigator";
 
+import Tips from "./src/screens/Tips";
+import MainNavigator from "./src/navogation/MainNavigator";
+import Notifications from "./src/screens/Notifications";
+import {Provider} from "react-redux";
+import {store} from "./src/redux/store/store";
+
 
 if (
     Platform.OS === "android" &&
@@ -18,18 +24,14 @@ if (
 }
 
 export default function App() {
-    /*const [isMute, setMute] = useState(false);
-    useEffect(() => {
-        initConfig();
-    }, []);
-    useEffect(() => {
-        mute(isMute);
-    }, [isMute]);*/
 
     return (
+        <Provider store={store}>
             <NavigationContainer ref={navigationRef}>
-                <SideMenuNavigator/>
+                <MainNavigator/>
             </NavigationContainer>
+        </Provider>
+
     );
 }
 

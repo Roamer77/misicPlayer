@@ -23,10 +23,10 @@ import {toolBarHeight} from "../constants/Constants";
 import {LinearGradient} from "expo-linear-gradient";
 import ReAnimated, {useCode, cond, call, round} from "react-native-reanimated";
 
-import {getListOfAudiosFromFileSystem} from "../api/playerApi";
+import {initPlayer,stopPlaying,getMMSSFromMillis,pauseTrack,playTrack,startPlaying,setPlaybackStatusUpdate} from "../api/playerApi";
 import {songNameRepresentation} from "../api/textTransformations";
-import {useDispatch} from "react-redux";
-import {addCurrentTrack} from "../redux/store/traksSlice";
+import {useDispatch, useSelector} from "react-redux";
+import {addCurrentTrack,addAllTracks,addSelectedTrackCurrentTime} from "../redux/store/traksSlice";
 
 const TitleForTrackSections = ({text}) => (
     <View>
@@ -51,7 +51,7 @@ const HEADER_OPENED = 250;
 const HEADER_CLOSED = 72;
 
 
-const ListHeader = ({onMenuButtonPress, headerDynamicHeight, backgroundColor, borderRadius, opacity, pressPlay,currentTrack}) => {
+const ListHeader = ({onMenuButtonPress, headerDynamicHeight, backgroundColor, borderRadius, opacity, pressPlay,currentTrack,isPlying}) => {
     const {image,songName,songAuthor}=currentTrack;
 
     return (
@@ -66,10 +66,11 @@ const ListHeader = ({onMenuButtonPress, headerDynamicHeight, backgroundColor, bo
                          d={burgerMenu} style={{paddingTop: 30, paddingLeft: 10}}/>
             </Pressable>
             <ReAnimated.View style={{opacity: opacity, borderRadius: borderRadius}}>
-                <Image source={image}
+                <Image source={image?image:require('../assets/Rectangle.png')}
                        style={{width: '100%', height: '100%'}}/>
+
                 <View style={{position:'absolute',left:0,width:'100%',bottom:20,zIndex:12,opacity:1}}>
-                    <View style={{justifyContent: 'center', flex: 1, paddingLeft: 20,paddingRight:20, paddingTop: 40}}>
+                    {songName&&<View style={{justifyContent: 'center', flex: 1, paddingLeft: 20,paddingRight:20, paddingTop: 40}}>
                         <Text style={[{color: '#fff'},style.headerBackgroundTextStyle]}>// TRENDING</Text>
                         <Text style={[{
                             color: '#fff',
@@ -78,9 +79,9 @@ const ListHeader = ({onMenuButtonPress, headerDynamicHeight, backgroundColor, bo
                             fontWeight: 'bold'
                         },style.headerBackgroundTextStyle]}>{ songNameRepresentation(songName,27) }</Text>
                         <Text style={{color: '#fff', fontSize: 18}}>{songAuthor}</Text>
-                    </View>
+                    </View>}
                     <View style={{flexDirection: 'row', marginBottom: 10,paddingTop:20,}}>
-                        <Button styles={{marginLeft: 20}} backgroundColor={'#fff'} text={'PLAY'}
+                        <Button styles={{marginLeft: 20}} backgroundColor={'#fff'} text={isPlying?'PAUSE':'PLAY'}
                                 onPress={pressPlay} textColor={'#F51E38'}/>
                         <IconButton styles={{marginLeft: 10}} iconName={'share-2'} iconColor={'#F51E38'}
                                     backgroundColor={'#fff'}/>
@@ -103,7 +104,10 @@ const BackGround = () => (
     );
 
 const Home = ({drawerProgress}) => {
+    let listOftecks=useSelector(state=>state.allTracks);
+
     const [allTracks, setAllTracks] = useState([]);
+    const [isCurrentTrackPlaying,setCurrentTrackState]=useState(false);
 
     const [currentTrack, setCurrentTrack] = useState({});
 
@@ -117,12 +121,24 @@ const Home = ({drawerProgress}) => {
 
 
     useEffect(() => {
-        let listWithAudioFiles = getListOfAudiosFromFileSystem();
-        listWithAudioFiles.then((data) => setAllTracks(data));
-    }, []);
+        setAllTracks(listOftecks);
+    },[listOftecks]);
+
     useEffect(()=>{
         dispatch(addCurrentTrack(currentTrack));
+
+        setPlaybackStatusUpdate(playbackStatus => {
+            playbackStatus.isPlaying? setCurrentTrackState(true):setCurrentTrackState(false);
+            if (playbackStatus.progressUpdateIntervalMillis) {
+
+            }
+            if (playbackStatus.positionMillis) {
+                let progressInMilSec=playbackStatus.positionMillis;
+                    dispatch(addSelectedTrackCurrentTime(progressInMilSec));
+            }
+        });
     },[currentTrack]);
+
     useCode(() => block([
         cond(greaterThan(triggerHeight, round(scrollY)),
             call([scrollY], (scrollY) => {
@@ -180,8 +196,12 @@ const Home = ({drawerProgress}) => {
         LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
         setAllTracks(res);
     };
+    const handleTrackListItemPress=(item)=>{
+        setCurrentTrack(item);
+         startPlaying(item.uri)
+    };
     const onMenuButtonPress = () => console.log('onMenuButtonPress');
-    const pressPlay = () => console.log('1');
+    const pressPlay = () => {isCurrentTrackPlaying ? pauseTrack():playTrack()};
     const screenHeight = Dimensions.get('screen').height;
 
     const AnimList = ReAnimated.createAnimatedComponent(FlatList);
@@ -212,7 +232,7 @@ const Home = ({drawerProgress}) => {
 
                     <ListHeader backgroundColor={backgroundColor} opacity={opacity} borderRadius={borderRadius}
                                 headerDynamicHeight={headerDynamicHeight} onMenuButtonPress={onMenuButtonPress}
-                                currentTrack={currentTrack}
+                                currentTrack={currentTrack} isPlying={isCurrentTrackPlaying}
                                 pressPlay={pressPlay}/>
 
 
@@ -227,8 +247,9 @@ const Home = ({drawerProgress}) => {
                                                 contentContainerStyle={{paddingRight:20}}
                                                 showsHorizontalScrollIndicator={false}
                                                 horizontal={true}
-                                                keyExtractor={item => item.id.toString() + item.songName}
-                                                renderItem={({item, index}) => <HorizontalScrollTrackItem
+                                                keyExtractor={item =>item.id.toString()}
+                                                renderItem={({item, index}) =>
+                                                    <HorizontalScrollTrackItem
                                                     indexInItemList={index}
                                                     songName={item.songName}
                                                     image={item.image}
@@ -240,16 +261,17 @@ const Home = ({drawerProgress}) => {
                                   paddingLeft: 20,
                                   paddingBottom: toolBarHeight + 10
                               }}
-                              keyExtractor={item => item.id.toString() + item.songName}
-                              renderItem={({item, index}) => (<TrackItem id={item.id}
-                                                   index={index}
-                                                   songName={item.songName}
-                                                   songAuthor={item.songAuthor}
-                                                   songDuration={item.duration}
-                                                   image={item.image}
-                                                    onItemPress={()=>setCurrentTrack(item)}
-                                                   onDeletePress={onDeletePress}/>
-                                                   )}/>
+                              keyExtractor={item => item.id.toString()}
+                              renderItem={({item, index}) => (
+                                  <TrackItem id={item.id}
+                                             index={index}
+                                             songName={item.songName}
+                                             songAuthor={item.songAuthor}
+                                             songDuration={item.duration}
+                                             image={item.image}
+                                             onItemPress={()=>handleTrackListItemPress(item)}
+                                             onDeletePress={onDeletePress}/>
+                                             )}/>
 
 
                 </ReAnimated.View>

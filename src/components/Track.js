@@ -1,25 +1,28 @@
 import React,{useState,useEffect} from 'react';
-import {View,StyleSheet,Text} from 'react-native';
+import {View,StyleSheet,Text,Animated} from 'react-native';
 import Slider from '@react-native-community/slider';
 import {Value} from "react-native-reanimated";
 
-const Track=()=>{
+const Track=({currentTime='00.00',duration='00.00',progress})=>{
     const slidingStart=()=>console.log('sliderStart');
     const slidingComplete=()=>console.log('slidingComplete');
     const convertSecondToTime=(value)=>value.toString();
+    const [sliderProgress,setSliderProgress]=useState(0);
+
     return(
         <View style={{flexDirection:'row',width:'90%',marginLeft:35,marginTop:20,marginRight:35}}>
-            <Text style={[styles.timeText,{paddingRight:20}]}>02:54</Text>
+            <Text style={[styles.timeText,{paddingRight:20}]}>{currentTime}</Text>
             <Slider
                 style={{width:'60%'}}
                 minimumValue={0}
                 maximumValue={1}
+                value={progress}
                 minimumTrackTintColor={'#ff3543'}
                 maximumTrackTintColor={'#ff3543'}
                 thumbTintColor={'#ff3543'}
                 trackStyle={styles.track}
             />
-            <Text style={[styles.timeText,{paddingLeft:20}]}>03:29</Text>
+            <Text style={[styles.timeText,{paddingLeft:20}]}>{duration}</Text>
         </View>
     );
 };

@@ -16,7 +16,7 @@ const getRandomPlaceHolder=()=>{
     return  data[res];
 };
 
-export const initConfig = async (trackURI) => {
+export const initPlayer = async () => {
     try {
         await Audio.setAudioModeAsync({
             allowsRecordingIOS: false,
@@ -28,18 +28,34 @@ export const initConfig = async (trackURI) => {
             playThroughEarpieceAndroid: true
         });
         soundObject = new Audio.Sound();
-        soundObject.setOnPlaybackStatusUpdate(onPlaybackStatusUpdate);
-
-        await soundObject.loadAsync({uri: trackURI});
     } catch (e) {
         console.log(e)
     }
 };
+export const isPlaying= async ()=>{
+
+};
+export const setPlaybackStatusUpdate=(callback)=>{
+    if(soundObject)
+        soundObject.setOnPlaybackStatusUpdate(callback);
+};
 export const stopPlaying = async () => {
     await soundObject.stopAsync();
 };
-export const startPlaying = async () => {
+export const pauseTrack = async ()=>{
+    await soundObject.pauseAsync();
+};
+export const playTrack=async ()=>{
     await soundObject.playAsync();
+};
+export const startPlaying = async (trackURI) => {
+    if(soundObject.isPlaying){
+        console.log('stop playing');
+       await soundObject.stopAsync();
+    }
+        await soundObject.unloadAsync();
+        await soundObject.loadAsync({uri: trackURI});
+        await soundObject.playAsync();
 };
 
 export const mute = async (isMuted) => {
@@ -76,7 +92,7 @@ const onPlaybackStatusUpdate = playbackStatus => {
 
         }
         if (playbackStatus.positionMillis) {
-            console.log('positionMillis ', getMMSSFromMillis(playbackStatus.positionMillis))
+            console.log(playbackStatus.positionMillis);
         }
         if (playbackStatus.isPlaying) {
             // Update your UI for the playing state
@@ -95,9 +111,9 @@ const onPlaybackStatusUpdate = playbackStatus => {
 
     }
 };
-const getMMSSFromMillis = (millis) => {
+export const getMMSSFromMillis = (millis) => {
     const totalSeconds = millis / 1000;
-    normalRepresentationOfTime(totalSeconds);
+    return  normalRepresentationOfTime(totalSeconds);
 };
 const normalRepresentationOfTime=(totalSeconds)=>{
     const seconds = Math.floor(totalSeconds % 60);

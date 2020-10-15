@@ -7,7 +7,10 @@ import Animated from 'react-native-reanimated';
 
 import Notifications from "../screens/Notifications";
 import { StackActions,CommonActions   } from '@react-navigation/native';
-
+import {getListOfAudiosFromFileSystem} from "../api/playerApi";
+import {addAllTracks,addPlayerInstance} from "../redux/store/traksSlice";
+import {useDispatch} from "react-redux";
+import {initPlayer} from '../api/playerApi';
 
 const Drawer = createDrawerNavigator();
 
@@ -25,16 +28,17 @@ const  SideMenuNavigator =({navigation}) =>{
 
 
     const [progress, setProgress] = useState(new Animated.Value(0));
-    const scale = Animated.interpolate(progress, {
-        inputRange: [0, 1],
-        outputRange: [1, 0.8],
-    });
-    const borderRadius = Animated.interpolate(progress, {
-        inputRange: [0, 1],
-        outputRange: [0, 16],
-    });
+    const dispatch=useDispatch();
 
-    const animatedStyle = {transform: [{ scale }] };
+    useEffect(()=>{
+        let player=initPlayer();
+        console.log('I rerandered');
+        let listWithAudioFiles = getListOfAudiosFromFileSystem();
+        listWithAudioFiles.then((data) => { dispatch(addAllTracks(data))});
+    },[]);
+
+
+
     return (
             <Drawer.Navigator overlayColor={'transparent'} drawerType={'slide'}
                               drawerStyle={{

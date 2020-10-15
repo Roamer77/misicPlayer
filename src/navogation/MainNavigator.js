@@ -12,5 +12,5 @@ const  MainNavigator=()=> {
             <Stack.Screen name="Home" component={SideMenuNavigator} options={{headerShown:false}} />
         </Stack.Navigator>
     );
-}
+};
 export default MainNavigator;

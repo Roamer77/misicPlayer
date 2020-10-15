@@ -12,6 +12,7 @@ import {Extrapolate} from "react-native-reanimated";
 import {StatusBar} from "expo-status-bar";
 import {useSelector} from "react-redux";
 import {songNameRepresentation} from "../api/textTransformations";
+import {getMMSSFromMillis} from "../api/playerApi";
 
 const Player = () => {
     const toolBarIcons1 = ['download', 'reload1', 'sound'];
@@ -22,6 +23,9 @@ const Player = () => {
     const nav=useNavigation();
     const animatedValue=new Animated.Value(0);
     const currentTrack=useSelector(state=>state.currentTrack);
+    const [trackProgress,setTrackProgress]=useState(0);
+    const [soundProgress,setSoundProgress]=useState(0);
+    const selectedTrackCurrentTime=useSelector(state=>state.selectedTrackCurrentTime);
     useEffect(()=>{
 
         let listener=nav.addListener('focus',()=>{
@@ -37,6 +41,14 @@ const Player = () => {
       };
     },[nav]);
 
+    useEffect(()=>{
+        if(selectedTrackCurrentTime){
+            setTrackProgress(selectedTrackCurrentTime);
+            //setSoundProgress((1/selectedTrackCurrentTime)*1000);
+            console.log(selectedTrackCurrentTime/1000);
+        }
+
+    },[selectedTrackCurrentTime]);
 
     const scale=animatedValue.interpolate({
         inputRange:[0,1],
@@ -76,7 +88,7 @@ const Player = () => {
                     ))}
                     <AntDesign name={'reload1'} size={24} color={iconColor}/>
                 </View>
-                <Track/>
+                <Track currentTime={getMMSSFromMillis(trackProgress)} duration={currentTrack.duration} progress={soundProgress}/>
                 <View style={styles.playerActionButtons}>
                     <TouchableOpacity onPress={() => console.log('priv')}>
                         <SvgIcon opacity={1} height={28} width={50} fill={iconColor} fillOpacity={1}

@@ -15,7 +15,7 @@ const PlayerActionButton = ({onPlayPress, isPressed}) => {
             <View >
                 <View style={styles.outsideRing}>
                     <View style={styles.button}>
-                        <SimpleLineIcons name={isPressed ? icons[1] : icons[0]} style={{paddingLeft: isPressed ? 5 : 0}}
+                        <SimpleLineIcons name={isPressed ? icons[0] : icons[1]} style={{paddingLeft: !isPressed ? 5 : 0}}
                                          size={30} color="#fff"/>
                     </View>
                 </View>

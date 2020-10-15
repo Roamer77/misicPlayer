@@ -12,7 +12,7 @@ import {Extrapolate} from "react-native-reanimated";
 import {StatusBar} from "expo-status-bar";
 import {useSelector} from "react-redux";
 import {songNameRepresentation} from "../api/textTransformations";
-import {getMMSSFromMillis} from "../api/playerApi";
+import {getMMSSFromMillis,pauseTrack,playTrack} from "../api/playerApi";
 
 const Player = () => {
     const toolBarIcons1 = ['download', 'reload1', 'sound'];
@@ -40,12 +40,13 @@ const Player = () => {
           return listener;
       };
     },[nav]);
-
+    useEffect(()=>{
+        !isPlayBtnPressed ? pauseTrack():playTrack();
+    },[isPlayBtnPressed]);
     useEffect(()=>{
         if(selectedTrackCurrentTime){
             setTrackProgress(selectedTrackCurrentTime);
-            //setSoundProgress((1/selectedTrackCurrentTime)*1000);
-            console.log(selectedTrackCurrentTime/1000);
+            setSoundProgress(selectedTrackCurrentTime*0.000005);
         }
 
     },[selectedTrackCurrentTime]);
@@ -57,7 +58,7 @@ const Player = () => {
     });
 
     return (
-        <Animated.View style={[styles.container,{  transform:[{scaleY:scale},{scaleX:scale}] }]}>
+        <Animated.View style={[styles.container,/*{  transform:[{scaleY:scale},{scaleX:scale}] }*/]}>
 
             <View style={styles.imagePart}>
                 <Pressable onPress={() => navigation.navigate('Home')} style={styles.buttonBack}>
@@ -88,7 +89,7 @@ const Player = () => {
                     ))}
                     <AntDesign name={'reload1'} size={24} color={iconColor}/>
                 </View>
-                <Track currentTime={getMMSSFromMillis(trackProgress)} duration={currentTrack.duration} progress={soundProgress}/>
+                <Track currentTime={trackProgress} duration={currentTrack.duration} progress={soundProgress}/>
                 <View style={styles.playerActionButtons}>
                     <TouchableOpacity onPress={() => console.log('priv')}>
                         <SvgIcon opacity={1} height={28} width={50} fill={iconColor} fillOpacity={1}

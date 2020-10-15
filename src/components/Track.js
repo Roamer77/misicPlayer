@@ -2,16 +2,16 @@ import React,{useState,useEffect} from 'react';
 import {View,StyleSheet,Text,Animated} from 'react-native';
 import Slider from '@react-native-community/slider';
 import {Value} from "react-native-reanimated";
+import {getMMSSFromMillis} from "../api/playerApi";
 
 const Track=({currentTime='00.00',duration='00.00',progress})=>{
     const slidingStart=()=>console.log('sliderStart');
     const slidingComplete=()=>console.log('slidingComplete');
     const convertSecondToTime=(value)=>value.toString();
-    const [sliderProgress,setSliderProgress]=useState(0);
 
     return(
         <View style={{flexDirection:'row',width:'90%',marginLeft:35,marginTop:20,marginRight:35}}>
-            <Text style={[styles.timeText,{paddingRight:20}]}>{currentTime}</Text>
+            <Text style={[styles.timeText,{paddingRight:20}]}>{getMMSSFromMillis(currentTime)}</Text>
             <Slider
                 style={{width:'60%'}}
                 minimumValue={0}

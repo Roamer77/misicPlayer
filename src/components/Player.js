@@ -1,48 +1,36 @@
 import React, {useState, useEffect,useRef} from 'react';
 import {AntDesign} from '@expo/vector-icons';
-import {View, StyleSheet, Image, Text, TouchableOpacity, Pressable,Animated,ImageBackground} from 'react-native';
+import {View, StyleSheet, Image, Text, TouchableOpacity, Pressable,} from 'react-native';
 import RoundImage from "./RoundImage";
 import PlayerActionButton from "./PlayerActionButton";
 import navigation from '../navogation/RootNavigation';
 import Track from "./Track";
 import SvgIcon from "./SvgIcons/SvgIcon";
 import {playerIcons} from "./SvgIcons/listOfIconsPathes";
-import {useNavigation} from '@react-navigation/native';
-import {Extrapolate} from "react-native-reanimated";
-import {StatusBar} from "expo-status-bar";
-import {useSelector} from "react-redux";
+
+import {useDispatch, useSelector} from "react-redux";
 import {songNameRepresentation} from "../api/textTransformations";
-import {getMMSSFromMillis,pauseTrack,playTrack} from "../api/playerApi";
+import {getMMSSFromMillis,pauseTrack,playTrack,startPlaying} from "../api/playerApi";
+import {addCurrentTrack} from '../redux/store/traksSlice';
 
 const Player = () => {
-    const toolBarIcons1 = ['download', 'reload1', 'sound'];
     const toolBarIcons = [playerIcons.Downloader, playerIcons.louder];
     const iconColor = '#a9a9a9';
-    const waveAnimRef=useRef(null);
     const [isPlayBtnPressed, setIsPlayBtnPressed] = useState(false);
-    const nav=useNavigation();
-    const animatedValue=new Animated.Value(0);
+
     const currentTrack=useSelector(state=>state.currentTrack);
     const [trackProgress,setTrackProgress]=useState(0);
     const [soundProgress,setSoundProgress]=useState(0);
     const selectedTrackCurrentTime=useSelector(state=>state.selectedTrackCurrentTime);
-    useEffect(()=>{
+    const listOfAllTracks=useSelector(state=>state.allTracks);
+    const dispatch=useDispatch();
 
-        let listener=nav.addListener('focus',()=>{
+    const [indexOfCurrentPlayingTrack,setIndexOfCurrentPlayingTrack]=useState(currentTrack.index) ;
 
-            Animated.timing(animatedValue,{
-                toValue:1,
-                duration:200,
-                useNativeDriver:true,
-            }).start();
-        });
-      return ()=>{
-          return listener;
-      };
-    },[nav]);
     useEffect(()=>{
         !isPlayBtnPressed ? pauseTrack():playTrack();
     },[isPlayBtnPressed]);
+
     useEffect(()=>{
         if(selectedTrackCurrentTime){
             setTrackProgress(selectedTrackCurrentTime);
@@ -51,20 +39,31 @@ const Player = () => {
 
     },[selectedTrackCurrentTime]);
 
-    const scale=animatedValue.interpolate({
-        inputRange:[0,1],
-        outputRange:[0,1],
-        extrapolate:Extrapolate.CLAMP,
-    });
+    const previousTrack=()=>{
+        if(listOfAllTracks){
+            let trackToPlay=listOfAllTracks[indexOfCurrentPlayingTrack-1];
+            setIndexOfCurrentPlayingTrack(indexOfCurrentPlayingTrack-1);
+            dispatch(addCurrentTrack(trackToPlay));
+            startPlaying(trackToPlay.uri);
+        }
+    };
+    const nextTrack=()=>{
+        if(listOfAllTracks){
+            let trackToPlay=listOfAllTracks[indexOfCurrentPlayingTrack+1];
+            setIndexOfCurrentPlayingTrack(indexOfCurrentPlayingTrack+1);
+            dispatch(addCurrentTrack(trackToPlay));
+            startPlaying(trackToPlay.uri);
+        }
+    };
 
     return (
-        <Animated.View style={[styles.container,/*{  transform:[{scaleY:scale},{scaleX:scale}] }*/]}>
+        <View style={[styles.container]}>
 
             <View style={styles.imagePart}>
                 <Pressable onPress={() => navigation.navigate('Home')} style={styles.buttonBack}>
                     <AntDesign name="arrowleft" size={30} color="#111"/>
                 </Pressable>
-                <ImageBackground source={currentTrack.image} style={styles.backgroundImage}/>
+                <Image source={currentTrack.image} style={styles.backgroundImage}/>
             </View>
             <View style={styles.playerUI}>
                 <View style={{alignItems: 'center', paddingTop: 40}}>
@@ -91,19 +90,19 @@ const Player = () => {
                 </View>
                 <Track currentTime={trackProgress} duration={currentTrack.duration} progress={soundProgress}/>
                 <View style={styles.playerActionButtons}>
-                    <TouchableOpacity onPress={() => console.log('priv')}>
+                    <TouchableOpacity onPress={previousTrack}>
                         <SvgIcon opacity={1} height={28} width={50} fill={iconColor} fillOpacity={1}
                                  d={playerIcons["2"].path}/>
                     </TouchableOpacity>
                     <PlayerActionButton onPlayPress={() =>setIsPlayBtnPressed(!isPlayBtnPressed)}
                                         isPressed={isPlayBtnPressed}/>
-                    <TouchableOpacity onPress={() => console.log('next')}>
+                    <TouchableOpacity onPress={nextTrack}>
                         <SvgIcon opacity={1} height={28} width={50} fill={iconColor} fillOpacity={1}
                                  d={playerIcons["1"].path}/>
                     </TouchableOpacity>
                 </View>
             </View>
-        </Animated.View>
+        </View>
     );
 };
 export default Player;
@@ -111,11 +110,6 @@ export default Player;
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-    },
-    waves:{
-        position:'absolute',
-        top:77,
-        width:'100%',
     },
     buttonBack: {
         width: 50,
@@ -150,8 +144,9 @@ const styles = StyleSheet.create({
         paddingTop: 10,
     },
     backgroundImage: {
+        position: 'absolute',
         width: '100%',
-        height: '100%',
+        height:'120%'
     },
     imagePart: {
         flex: 0.3,

@@ -23,11 +23,11 @@ import {toolBarHeight} from "../constants/Constants";
 import {LinearGradient} from "expo-linear-gradient";
 import ReAnimated, {useCode, cond, call, round} from "react-native-reanimated";
 
-import {initPlayer,stopPlaying,getMMSSFromMillis,pauseTrack,playTrack,startPlaying,setPlaybackStatusUpdate} from "../api/playerApi";
+import {pauseTrack,playTrack,startPlaying,setPlaybackStatusUpdate} from "../api/playerApi";
 import {songNameRepresentation} from "../api/textTransformations";
 import {useDispatch, useSelector} from "react-redux";
-import {addCurrentTrack,addAllTracks,addSelectedTrackCurrentTime} from "../redux/store/traksSlice";
-
+import {addCurrentTrack,setIsAnyTrackPlaying,addSelectedTrackCurrentTime} from "../redux/store/traksSlice";
+import {useIsFocused} from '@react-navigation/native';
 const TitleForTrackSections = ({text}) => (
     <View>
         <Text style={style.titleForTrackSections}>{text}</Text>
@@ -105,7 +105,7 @@ const BackGround = () => (
 
 const Home = ({drawerProgress}) => {
     let listOftecks=useSelector(state=>state.allTracks);
-
+    let temp=useSelector(state=>state.currentTrack);
     const [allTracks, setAllTracks] = useState([]);
     const [isCurrentTrackPlaying,setCurrentTrackState]=useState(false);
 
@@ -119,16 +119,28 @@ const Home = ({drawerProgress}) => {
 
     const dispatch= useDispatch();
 
+    const isFocused=useIsFocused();
 
+    useEffect(()=>{
+       if(isFocused && temp){
+          setCurrentTrack(temp);
+       }
+    },[isFocused]);
     useEffect(() => {
         setAllTracks(listOftecks);
     },[listOftecks]);
 
     useEffect(()=>{
         dispatch(addCurrentTrack(currentTrack));
-
         setPlaybackStatusUpdate(playbackStatus => {
-            playbackStatus.isPlaying? setCurrentTrackState(true):setCurrentTrackState(false);
+           if(playbackStatus.isPlaying) {
+               setCurrentTrackState(true) ;
+               dispatch(setIsAnyTrackPlaying(true));
+           }else{
+               setCurrentTrackState(false);
+               dispatch(setIsAnyTrackPlaying(false));
+           }
+
             if (playbackStatus.progressUpdateIntervalMillis) {
 
             }
@@ -197,8 +209,8 @@ const Home = ({drawerProgress}) => {
         setAllTracks(res);
     };
     const handleTrackListItemPress=(item)=>{
-        setCurrentTrack(item);
-         startPlaying(item.uri)
+          setCurrentTrack(item);
+          startPlaying(item.uri)
     };
     const onMenuButtonPress = () => console.log('onMenuButtonPress');
     const pressPlay = () => {isCurrentTrackPlaying ? pauseTrack():playTrack()};
@@ -269,7 +281,7 @@ const Home = ({drawerProgress}) => {
                                              songAuthor={item.songAuthor}
                                              songDuration={item.duration}
                                              image={item.image}
-                                             onItemPress={()=>handleTrackListItemPress(item)}
+                                             onItemPress={()=>handleTrackListItemPress({...item,index})}
                                              onDeletePress={onDeletePress}/>
                                              )}/>
 

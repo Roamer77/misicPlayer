@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {View, Image, TouchableOpacity,Dimensions} from "react-native";
+import {View, Image, TouchableOpacity, Pressable, Dimensions, LayoutAnimation} from "react-native";
 import ActionButton from "./SvgIcons/ActionButton";
 import {pathes} from './SvgIcons/listOfIconsPathes';
 import SvgIcon from "./SvgIcons/SvgIcon";
@@ -51,17 +51,17 @@ const ToolBar = ({state, descriptors, navigation,drawerProgress}) => {
         inputRange: [0, 1],
         outputRange: [0, 80],
     });
-
+        const [flag,setFlag]=useState(true);
     return (
         <Animated.View style={{height: 65, position: 'absolute', bottom: 0, left: 0, backgroundColor: 'transparent', zIndex: 1,translateY:translateYForToolBar}}>
 
-            <TouchableOpacity  onPress={() => {
+            <Pressable  onPress={() => {
                 let res = routs.find((rout) => rout.routName === 'CurrentTrack');
                 navigation.navigate(res.routName);
             }}
                               style={{position: 'absolute', zIndex: 21, left: width>350? width/2.35:width/2.4 , bottom: 19}}>
                 <ActionButton/>
-            </TouchableOpacity>
+            </Pressable>
             <ToolBarBackground width={width} height={toolBarHeight} fill={'white'}/>
             <View style={{
                 flexDirection: 'row',

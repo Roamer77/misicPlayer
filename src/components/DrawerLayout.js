@@ -5,6 +5,8 @@ import {
     DrawerContentScrollView,
 } from '@react-navigation/drawer';
 import Animated from 'react-native-reanimated';
+import {addDrawerProgress} from "../redux/store/drawerSlice";
+import {useDispatch} from "react-redux";
 
 const DrawerItem = ({onPress, rippleColor, label, iconName,iconSize=24}) => (
     <Pressable onPress={onPress} android_ripple={{color: rippleColor}}
@@ -17,12 +19,17 @@ const DrawerItem = ({onPress, rippleColor, label, iconName,iconSize=24}) => (
 );
 
 const CustomDrawerLayout = ({progress, ...props}) => {
+
+    const dispatch=useDispatch();
+
     const translateX = Animated.interpolate(progress, {
         inputRange: [0, 1],
         outputRange: [-100, 0],
     });
     const iconsNames = ['music-note-outline', 'file-multiple', 'account-outline', 'youtube', 'cards-heart', 'file-cabinet', 'folder-download', 'folder-open-outline'];
     const labels = ['Songs', 'Albums', 'Artists', 'YouTube', 'Favourite', 'Recent History', 'Download', 'Local Files'];
+
+
     return (
         <DrawerContentScrollView {...props} showsVerticalScrollIndicator={false}  style={{backgroundColor: '#F51E38'}}>
             <Animated.View style={{transform: [{translateX}],paddingTop:'30%'}}>

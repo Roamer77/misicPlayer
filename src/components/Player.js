@@ -1,6 +1,6 @@
 import React, {useState, useEffect,useRef} from 'react';
 import {AntDesign} from '@expo/vector-icons';
-import {View, StyleSheet, Image, Text, TouchableOpacity, Pressable,} from 'react-native';
+import {View, StyleSheet, Image, Text, TouchableOpacity, Pressable,StatusBar} from 'react-native';
 import RoundImage from "./RoundImage";
 import PlayerActionButton from "./PlayerActionButton";
 import navigation from '../navogation/RootNavigation';
@@ -10,31 +10,42 @@ import {playerIcons} from "./SvgIcons/listOfIconsPathes";
 
 import {useDispatch, useSelector} from "react-redux";
 import {songNameRepresentation} from "../api/textTransformations";
-import {getMMSSFromMillis,pauseTrack,playTrack,startPlaying} from "../api/playerApi";
+import {getCurrentTrackDuration, getMMSSFromMillis, pauseTrack, playTrack, startPlaying} from "../api/playerApi";
 import {addCurrentTrack} from '../redux/store/traksSlice';
+import {useIsFocused} from '@react-navigation/native';
+import ReAnimated from "react-native-reanimated";
 
 const Player = () => {
     const toolBarIcons = [playerIcons.Downloader, playerIcons.louder];
     const iconColor = '#a9a9a9';
     const [isPlayBtnPressed, setIsPlayBtnPressed] = useState(false);
+    const [actionButtonAnimation, setActionButtonAnimation] = useState(false);
 
-    const currentTrack=useSelector(state=>state.currentTrack);
+    const currentTrack=useSelector(state=>state.trackReducer.currentTrack);
     const [trackProgress,setTrackProgress]=useState(0);
     const [soundProgress,setSoundProgress]=useState(0);
-    const selectedTrackCurrentTime=useSelector(state=>state.selectedTrackCurrentTime);
-    const listOfAllTracks=useSelector(state=>state.allTracks);
+    const selectedTrackCurrentTime=useSelector(state=>state.trackReducer.selectedTrackCurrentTime);
+    const listOfAllTracks=useSelector(state=>state.trackReducer.allTracks);
     const dispatch=useDispatch();
 
     const [indexOfCurrentPlayingTrack,setIndexOfCurrentPlayingTrack]=useState(currentTrack.index) ;
+    const isAnyTrackPlaying=useSelector(state=>state.trackReducer.isAnyTrackPlaying);
+    const isFocused=useIsFocused();
 
     useEffect(()=>{
-        !isPlayBtnPressed ? pauseTrack():playTrack();
+        if(isAnyTrackPlaying&& isPlayBtnPressed){
+            pauseTrack();
+        }else{playTrack()}
     },[isPlayBtnPressed]);
+    useEffect(()=>{
+        isAnyTrackPlaying?setActionButtonAnimation(true):setActionButtonAnimation(false);
+    },[isAnyTrackPlaying]);
 
     useEffect(()=>{
         if(selectedTrackCurrentTime){
             setTrackProgress(selectedTrackCurrentTime);
-            setSoundProgress(selectedTrackCurrentTime*0.000005);
+
+            setSoundProgress(selectedTrackCurrentTime);
         }
 
     },[selectedTrackCurrentTime]);
@@ -58,7 +69,8 @@ const Player = () => {
 
     return (
         <View style={[styles.container]}>
-
+            {   <StatusBar hidden={isFocused} backgroundColor={'transparent'} translucent={true}
+                                      animated={true}/>}
             <View style={styles.imagePart}>
                 <Pressable onPress={() => navigation.navigate('Home')} style={styles.buttonBack}>
                     <AntDesign name="arrowleft" size={30} color="#111"/>
@@ -88,14 +100,14 @@ const Player = () => {
                     ))}
                     <AntDesign name={'reload1'} size={24} color={iconColor}/>
                 </View>
-                <Track currentTime={trackProgress} duration={currentTrack.duration} progress={soundProgress}/>
+                <Track currentTime={trackProgress} endTime={currentTrack.durationInMillis} duration={currentTrack.duration} progress={soundProgress}/>
                 <View style={styles.playerActionButtons}>
                     <TouchableOpacity onPress={previousTrack}>
                         <SvgIcon opacity={1} height={28} width={50} fill={iconColor} fillOpacity={1}
                                  d={playerIcons["2"].path}/>
                     </TouchableOpacity>
                     <PlayerActionButton onPlayPress={() =>setIsPlayBtnPressed(!isPlayBtnPressed)}
-                                        isPressed={isPlayBtnPressed}/>
+                                        isPressed={isPlayBtnPressed} startAnimation={actionButtonAnimation}/>
                     <TouchableOpacity onPress={nextTrack}>
                         <SvgIcon opacity={1} height={28} width={50} fill={iconColor} fillOpacity={1}
                                  d={playerIcons["1"].path}/>

@@ -7,6 +7,8 @@ import {Svg, Path} from "react-native-svg";
 import {toolBarHeight} from "../constants/Constants";
 import Animated from 'react-native-reanimated';
 import ReAnimated from "react-native-reanimated";
+import {useSelector} from "react-redux";
+import drawerSlice from "../redux/store/drawerSlice";
 
 
 const ToolBarBackground = ({width, height, fill}) => (
@@ -47,6 +49,7 @@ const ToolBar = ({state, descriptors, navigation,drawerProgress}) => {
         id: 5,
         routName: 'CurrentTrack'
     },];
+
     const translateYForToolBar = ReAnimated.interpolate(drawerProgress, {
         inputRange: [0, 1],
         outputRange: [0, 80],

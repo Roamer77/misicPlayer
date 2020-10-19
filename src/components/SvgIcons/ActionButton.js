@@ -1,4 +1,4 @@
-import React, {useEffect,useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {Path, Svg} from 'react-native-svg';
 import {View, Animated, LayoutAnimation} from 'react-native';
 import {useSelector} from "react-redux";
@@ -16,28 +16,78 @@ const Background = () => (<Svg width="62" height="62" viewBox="0 0 62 62" fill="
           d="M31 62C48.1208 62 62 48.1208 62 31C62 13.8792 48.1208 0 31 0C13.8792 0 0 13.8792 0 31C0 48.1208 13.8792 62 31 62Z"
           fill="#3E2AD1"/>
 </Svg>);
+const CustomLayoutSpring = {
+    duration: 200,
+    create: {
+        type: LayoutAnimation.Types.spring,
+        property: LayoutAnimation.Properties.scaleXY,
+        springDamping: 0.7,
+    },
+    update: {
+        type: LayoutAnimation.Types.spring,
+        property: LayoutAnimation.Properties.scaleXY,
+        springDamping: 0.7,
+    },
+    delete:{
+        type: LayoutAnimation.Types.spring,
+        property: LayoutAnimation.Properties.scaleXY,
+        springDamping: 0.7,
+    }
+};
 const ActionButton = () => {
-    const isAnyTrackPlaying=useSelector(state=>state.isAnyTrackPlaying);
-    const trackProgress=useSelector(state=>state.selectedTrackCurrentTime);
-    const [flag,setFlag]=useState(true);
-    useEffect(()=>isAnyTrackPlaying?setFlag(false):setFlag(true),[isAnyTrackPlaying]);
+    const isAnyTrackPlaying = useSelector(state => state.trackReducer.isAnyTrackPlaying);
+    const trackProgress = useSelector(state => state.trackReducer.selectedTrackCurrentTime);
+    const [flag, setFlag] = useState(true);
+    const anim = useRef(new Animated.Value(1));
+
+    const animatedStart = () => {
+        return Animated.loop(
+            Animated.sequence([
+                Animated.timing(anim.current, {
+                    toValue: 1,
+                    duration: 200,
+                    useNativeDriver: true,
+                }),
+                Animated.timing(anim.current, {
+                    toValue: 0.8,
+                    duration: 200,
+                    useNativeDriver: true,
+                }),
+            ])
+        )
+    };
+    useEffect(() => {
+        if (isAnyTrackPlaying) {
+            animatedStart().start();
+            LayoutAnimation.configureNext(LayoutAnimation.Presets.spring);
+            setFlag(false);
+
+        } else {
+            animatedStart().stop();
+            //LayoutAnimation.configureNext(LayoutAnimation.Presets.spring);
+            setFlag(true);
+        }
+    }, [isAnyTrackPlaying]);
+   // useEffect(()=>  LayoutAnimation.configureNext(LayoutAnimation.Presets.spring),[flag]);
+
     return (
         <View>
-            <CircleTrackProgress style={{position: 'absolute',right:-2.4,bottom:-2.5}} width={68} progress={new Animated.Value(trackProgress*0.000005)}/>
+            <CircleTrackProgress style={{position: 'absolute', right: -2.4, bottom: -2.5}} tintColor={'#ff9550'}
+                                 width={68} progress={new Animated.Value(trackProgress * 0.000005)}/>
             <Background/>
-            {
-                flag ? <Animated.View
+
+               { flag && <Animated.View
                         style={{position: 'absolute',}}>
-                        <Svg width="62" height="62" viewBox="0 0 62 62" fill="none">
+                        <Svg width="62" height="62">
                             <Rocket/>
                         </Svg>
-                    </Animated.View> :
-                    <Animated.View style={{position: 'absolute',}}>
-                        <Svg width="62" height="62" viewBox="0 0 62 62" fill="none">
+                    </Animated.View>}
+               { !flag &&  <Animated.View style={{position: 'absolute', transform: [{scale: anim.current}]}}>
+                        <Svg width="62" height="62">
                             <Note/>
                         </Svg>
-                    </Animated.View>
-            }
+                    </Animated.View>}
+
         </View>
 
     );

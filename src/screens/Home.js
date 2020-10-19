@@ -16,6 +16,7 @@ import TrackItem from "../components/ListItems/TrackItem";
 import {block, Extrapolate, greaterThan, lessThan} from "react-native-reanimated";
 import {burgerMenu} from '../components/SvgIcons/listOfIconsPathes';
 import HorizontalScrollTrackItem from "../components/ListItems/HorizontalScrollTrackItem";
+import { Feather } from '@expo/vector-icons';
 import SvgIcon from "../components/SvgIcons/SvgIcon";
 import Button from "../components/Buttons/Button";
 import IconButton from "../components/Buttons/IconButton";
@@ -23,37 +24,25 @@ import {toolBarHeight} from "../constants/Constants";
 import {LinearGradient} from "expo-linear-gradient";
 import ReAnimated, {useCode, cond, call, round} from "react-native-reanimated";
 
-import {pauseTrack,playTrack,startPlaying,setPlaybackStatusUpdate} from "../api/playerApi";
+import {pauseTrack, playTrack, startPlaying, setPlaybackStatusUpdate, getCurrentTrackDuration} from "../api/playerApi";
 import {songNameRepresentation} from "../api/textTransformations";
 import {useDispatch, useSelector} from "react-redux";
 import {addCurrentTrack,setIsAnyTrackPlaying,addSelectedTrackCurrentTime} from "../redux/store/traksSlice";
 import {useIsFocused} from '@react-navigation/native';
+
 const TitleForTrackSections = ({text}) => (
     <View>
         <Text style={style.titleForTrackSections}>{text}</Text>
     </View>
 );
-const CustomLayoutSpring = {
-    duration: 400,
-    create: {
-        type: LayoutAnimation.Types.spring,
-        property: LayoutAnimation.Properties.scaleXY,
-        springDamping: 0.7,
-    },
-    update: {
-        type: LayoutAnimation.Types.spring,
-        springDamping: 0.7,
-    },
-};
-
 
 const HEADER_OPENED = 250;
 const HEADER_CLOSED = 72;
 
 
-const ListHeader = ({onMenuButtonPress, headerDynamicHeight, backgroundColor, borderRadius, opacity, pressPlay,currentTrack,isPlying}) => {
+const ListHeader = ({onMenuButtonPress, headerDynamicHeight, backgroundColor, borderRadius, opacity, pressPlay,currentTrack,isPlying,menuBtnColor}) => {
     const {image,songName,songAuthor}=currentTrack;
-
+    const AnimatedIcon=ReAnimated.createAnimatedComponent(Feather);
     return (
         <ReAnimated.View
             style={[style.header, {
@@ -62,8 +51,7 @@ const ListHeader = ({onMenuButtonPress, headerDynamicHeight, backgroundColor, bo
                 borderRadius: borderRadius
             }]}>
             <Pressable onPress={onMenuButtonPress} style={style.menuBtn}>
-                <SvgIcon opacity={1} width={29} height={27} fill={'#fff'} fillOpacity={1}
-                         d={burgerMenu} style={{paddingTop: 30, paddingLeft: 10}}/>
+                <AnimatedIcon name="menu" size={27} style={{color:menuBtnColor}} />
             </Pressable>
             <ReAnimated.View style={{opacity: opacity, borderRadius: borderRadius}}>
                 <Image source={image?image:require('../assets/Rectangle.png')}
@@ -104,8 +92,8 @@ const BackGround = () => (
     );
 
 const Home = ({drawerProgress}) => {
-    let listOftecks=useSelector(state=>state.allTracks);
-    let temp=useSelector(state=>state.currentTrack);
+    let listOftecks=useSelector(state=>state.trackReducer.allTracks);
+    let temp=useSelector(state=>state.trackReducer.currentTrack);
     const [allTracks, setAllTracks] = useState([]);
     const [isCurrentTrackPlaying,setCurrentTrackState]=useState(false);
 
@@ -180,6 +168,10 @@ const Home = ({drawerProgress}) => {
         inputRange: [0, HEADER_OPENED - HEADER_CLOSED],
         outputColorRange: ['rgb(255,0,0)', '#fff']
     });
+    const menuBtnBackgroundColor = ReAnimated.interpolateColors(scrollY, {
+        inputRange: [0, HEADER_OPENED - HEADER_CLOSED],
+        outputColorRange: [ 'rgb(255,255,255)','rgb(0,0,0)']
+    });
 
     const scale = ReAnimated.interpolate(drawerProgress, {
         inputRange: [0, 1],
@@ -209,7 +201,10 @@ const Home = ({drawerProgress}) => {
         setAllTracks(res);
     };
     const handleTrackListItemPress=(item)=>{
-          setCurrentTrack(item);
+          getCurrentTrackDuration().then(data=>{
+              item.durationInMillis=data;
+              setCurrentTrack(item);
+          });
           startPlaying(item.uri)
     };
     const onMenuButtonPress = () => console.log('onMenuButtonPress');
@@ -245,11 +240,13 @@ const Home = ({drawerProgress}) => {
                     <ListHeader backgroundColor={backgroundColor} opacity={opacity} borderRadius={borderRadius}
                                 headerDynamicHeight={headerDynamicHeight} onMenuButtonPress={onMenuButtonPress}
                                 currentTrack={currentTrack} isPlying={isCurrentTrackPlaying}
+                                menuBtnColor={menuBtnBackgroundColor}
                                 pressPlay={pressPlay}/>
 
 
                     <AnimList data={allTracks}
                               ref={scrollView}
+                              showsVerticalScrollIndicator={false}
                               onScroll={onScroll}
                               scrollEventThrottle={16}
                               ListHeaderComponent={()=>(
@@ -305,7 +302,7 @@ const style = StyleSheet.create({
         backgroundColor:'rgba(17,17,17,0.74)'
     },
     menuBtn: {
-        position: 'absolute', top: 10, left: 10, zIndex: 20
+        position: 'absolute', top: 30, left: 18, zIndex: 20
     },
     header: {
         position: "absolute",

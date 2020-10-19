@@ -1,6 +1,7 @@
-import {configureStore,getDefaultMiddleware} from '@reduxjs/toolkit';
+import {configureStore,getDefaultMiddleware,combineReducers} from '@reduxjs/toolkit';
 import trackReducer from './traksSlice';
+import drawerReducer from './drawerSlice';
 export const store = configureStore({
-    reducer: trackReducer,
+    reducer: {trackReducer:trackReducer,drawerReducer:drawerReducer} ,
     middleware:getDefaultMiddleware({serializableCheck: false})
 });

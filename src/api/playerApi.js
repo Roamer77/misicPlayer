@@ -32,9 +32,7 @@ export const initPlayer = async () => {
         console.log(e)
     }
 };
-export const isPlaying= async ()=>{
 
-};
 export const setPlaybackStatusUpdate=(callback)=>{
     if(soundObject)
         soundObject.setOnPlaybackStatusUpdate(callback);
@@ -71,20 +69,22 @@ export const getCurrentTrackDuration = async () => {
     try {
         if (soundObject) {
             let {durationMillis} = await soundObject.getStatusAsync();
-            return getMMSSFromMillis(durationMillis);
+            return durationMillis;
         }
         return null;
     } catch (e) {
         console.log(e);
     }
 };
-
+export const setTrackPositionInMillis=async( position)=>{
+    await soundObject.setPositionAsync(position);
+};
 
 export const getMMSSFromMillis = (millis) => {
     const totalSeconds = millis / 1000;
     return  normalRepresentationOfTime(totalSeconds);
 };
-const normalRepresentationOfTime=(totalSeconds)=>{
+export const normalRepresentationOfTime=(totalSeconds)=>{
     const seconds = Math.floor(totalSeconds % 60);
     const minutes = Math.floor(totalSeconds / 60);
 
@@ -108,7 +108,7 @@ export const getListOfAudiosFromFileSystem = async () => {
             songName: item.filename,
             songAuthor:'',
             uri:item.uri,
-            duration:normalRepresentationOfTime(item.duration) ,
+            duration:normalRepresentationOfTime(item.duration),
             id:item.id,
             image:getRandomPlaceHolder(),
         });

@@ -2,11 +2,11 @@ import React,{useState,useEffect} from 'react';
 import {View,StyleSheet,Text,Animated} from 'react-native';
 import Slider from '@react-native-community/slider';
 import {Value} from "react-native-reanimated";
-import {getMMSSFromMillis} from "../api/playerApi";
+import {getMMSSFromMillis,setTrackPositionInMillis} from "../api/playerApi";
 
-const Track=({currentTime='00.00',duration='00.00',progress})=>{
+const Track=({currentTime='00.00',endTime,duration='00.00',progress})=>{
     const slidingStart=()=>console.log('sliderStart');
-    const slidingComplete=()=>console.log('slidingComplete');
+    const slidingComplete=(value)=>setTrackPositionInMillis(value);
     const convertSecondToTime=(value)=>value.toString();
 
     return(
@@ -15,8 +15,9 @@ const Track=({currentTime='00.00',duration='00.00',progress})=>{
             <Slider
                 style={{width:'60%'}}
                 minimumValue={0}
-                maximumValue={1}
+                maximumValue={endTime}
                 value={progress}
+                onSlidingComplete={slidingComplete}
                 minimumTrackTintColor={'#ff3543'}
                 maximumTrackTintColor={'#ff3543'}
                 thumbTintColor={'#ff3543'}

@@ -31,7 +31,7 @@ const  TabNavigator=( {drawerProgress})=> {
 
     return (
         <Tab.Navigator tabBarOptions={{showLabel: false, style:{backgroundColor:'#111'}}}
-                       tabBar={(props)=>(<ToolBar {...props} drawerProgress={drawerProgress} />)}>
+                       tabBar={(props)=>(<ToolBar {...props}  />)}>
             <Tab.Screen  name="Home">{()=><Home drawerProgress={drawerProgress} />}</Tab.Screen>
 
             <Tab.Screen name="Tv" component={TV} options={{}}/>

@@ -11,6 +11,7 @@ import {getListOfAudiosFromFileSystem} from "../api/playerApi";
 import {addAllTracks,addPlayerInstance} from "../redux/store/traksSlice";
 import {useDispatch} from "react-redux";
 import {initPlayer} from '../api/playerApi';
+import {addDrawerProgress} from "../redux/store/drawerSlice";
 
 const Drawer = createDrawerNavigator();
 
@@ -28,11 +29,11 @@ const  SideMenuNavigator =({navigation}) =>{
 
 
     const [progress, setProgress] = useState(new Animated.Value(0));
+
     const dispatch=useDispatch();
 
     useEffect(()=>{
         let player=initPlayer();
-        console.log('I rerandered');
         let listWithAudioFiles = getListOfAudiosFromFileSystem();
         listWithAudioFiles.then((data) => { dispatch(addAllTracks(data))});
     },[]);

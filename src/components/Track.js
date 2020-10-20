@@ -1,16 +1,16 @@
-import React,{useState,useEffect} from 'react';
-import {View,StyleSheet,Text,Animated} from 'react-native';
+import React from 'react';
+import {View,StyleSheet,Text} from 'react-native';
 import Slider from '@react-native-community/slider';
-import {Value} from "react-native-reanimated";
+
 import {getMMSSFromMillis,setTrackPositionInMillis} from "../api/playerApi";
 
 const Track=({currentTime='00.00',endTime,duration='00.00',progress})=>{
-    const slidingStart=()=>console.log('sliderStart');
+
     const slidingComplete=(value)=>setTrackPositionInMillis(value);
-    const convertSecondToTime=(value)=>value.toString();
+
 
     return(
-        <View style={{flexDirection:'row',width:'90%',marginLeft:35,marginTop:20,marginRight:35}}>
+        <View style={styles.container}>
             <Text style={[styles.timeText,{paddingRight:20}]}>{getMMSSFromMillis(currentTime)}</Text>
             <Slider
                 style={{width:'60%'}}
@@ -30,6 +30,13 @@ const Track=({currentTime='00.00',endTime,duration='00.00',progress})=>{
 export default Track;
 
 const styles=StyleSheet.create({
+    container:{
+        flexDirection:'row',
+        width:'90%',
+        marginLeft:35,
+        marginTop:20,
+        marginRight:35
+    },
     timeText:{
         fontSize: 16,
         color:'#a9a9a9',

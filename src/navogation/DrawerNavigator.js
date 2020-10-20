@@ -1,17 +1,16 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect,useState} from 'react';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 
 import TabNavigator from "./TabNavigator";
-import CustomDrawerLayout from "../components/DrawerLayout";
+import CustomDrawerLayout from "../components/DrawerLayout/DrawerLayout";
 import Animated from 'react-native-reanimated';
 
 import Notifications from "../screens/Notifications";
-import { StackActions,CommonActions   } from '@react-navigation/native';
+import {CommonActions } from '@react-navigation/native';
 import {getListOfAudiosFromFileSystem} from "../api/playerApi";
-import {addAllTracks,addPlayerInstance} from "../redux/store/traksSlice";
+import {addAllTracks} from "../redux/store/traksSlice";
 import {useDispatch} from "react-redux";
 import {initPlayer} from '../api/playerApi';
-import {addDrawerProgress} from "../redux/store/drawerSlice";
 
 const Drawer = createDrawerNavigator();
 
@@ -33,7 +32,7 @@ const  SideMenuNavigator =({navigation}) =>{
     const dispatch=useDispatch();
 
     useEffect(()=>{
-        let player=initPlayer();
+        initPlayer();
         let listWithAudioFiles = getListOfAudiosFromFileSystem();
         listWithAudioFiles.then((data) => { dispatch(addAllTracks(data))});
     },[]);
@@ -42,10 +41,7 @@ const  SideMenuNavigator =({navigation}) =>{
 
     return (
             <Drawer.Navigator overlayColor={'transparent'} drawerType={'slide'}
-                              drawerStyle={{
-                                  backgroundColor: '#F51E38',
-                                  width: '50%',
-                              }}
+                              drawerStyle={{backgroundColor: '#F51E38', width: '50%',}}
                               drawerContent={ props=>{
                                   setProgress(props.progress);
                                   return <CustomDrawerLayout {...props} />

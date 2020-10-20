@@ -10,12 +10,15 @@ const PlayerActionButton = ({onPlayPress, isPressed,startAnimation}) => {
 
     return (
         <Pressable onPress={() => onPlayPress(!isPressed)}>
-            {startAnimation && <LottieView style={styles.animation} loop autoPlay
-                                      source={require('../assets/animations/equaliser.json')}/>}
+            {
+                startAnimation &&
+                <LottieView style={styles.animation} loop autoPlay source={require('../assets/animations/equaliser.json')}/>
+            }
             <View >
                 <View style={styles.outsideRing}>
                     <View style={styles.button}>
-                        <SimpleLineIcons name={startAnimation ? icons[0] : icons[1]} style={{paddingLeft: !startAnimation ? 5 : 0}}
+                        <SimpleLineIcons name={startAnimation ? icons[0] : icons[1]}
+                                         style={{paddingLeft: !startAnimation ? 5 : 0}}
                                          size={30} color="#fff"/>
                     </View>
                 </View>

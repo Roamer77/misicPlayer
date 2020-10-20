@@ -1,26 +1,18 @@
 import React, {useState, useRef, useEffect} from 'react';
-import {StyleSheet, View, Animated, Button, Dimensions, Easing, Text, LayoutAnimation} from 'react-native';
-import Svg, {Circle, Path} from "react-native-svg";
-import {Ionicons} from '@expo/vector-icons';
-import Slider from "@react-native-community/slider";
+import {StyleSheet, View, Button} from 'react-native';
+import {useSelector} from "react-redux";
 
 
 
 const Notifications = () => {
 
     const slidingComplete=(value)=>console.log('slidingComplete: ',value);
+    const currentTrack=useSelector(state=>state.trackReducer.currentTrack);
+
 
     return (
         <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
-            <Slider
-                style={{width:'60%'}}
-                minimumValue={0}
-                maximumValue={3000}
-                onSlidingComplete={slidingComplete}
-                minimumTrackTintColor={'#ff3543'}
-                maximumTrackTintColor={'#ff3543'}
-                thumbTintColor={'#ff3543'}
-            />
+
 
         </View>
     );

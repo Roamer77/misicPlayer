@@ -1,4 +1,4 @@
-import React, {useState, useEffect,useRef} from 'react';
+import React, {useState, useEffect} from 'react';
 import {AntDesign} from '@expo/vector-icons';
 import {View, StyleSheet, Image, Text, TouchableOpacity, Pressable,StatusBar} from 'react-native';
 import RoundImage from "./RoundImage";
@@ -10,10 +10,9 @@ import {playerIcons} from "./SvgIcons/listOfIconsPathes";
 
 import {useDispatch, useSelector} from "react-redux";
 import {songNameRepresentation} from "../api/textTransformations";
-import {getCurrentTrackDuration, getMMSSFromMillis, pauseTrack, playTrack, startPlaying} from "../api/playerApi";
+import {pauseTrack, playTrack, startPlaying} from "../api/playerApi";
 import {addCurrentTrack} from '../redux/store/traksSlice';
 import {useIsFocused} from '@react-navigation/native';
-import ReAnimated from "react-native-reanimated";
 
 const Player = () => {
     const toolBarIcons = [playerIcons.Downloader, playerIcons.louder];
@@ -33,10 +32,9 @@ const Player = () => {
     const isFocused=useIsFocused();
 
     useEffect(()=>{
-        if(isAnyTrackPlaying&& isPlayBtnPressed){
-            pauseTrack();
-        }else{playTrack()}
+        isAnyTrackPlaying&& isPlayBtnPressed? pauseTrack():playTrack();
     },[isPlayBtnPressed]);
+
     useEffect(()=>{
         isAnyTrackPlaying?setActionButtonAnimation(true):setActionButtonAnimation(false);
     },[isAnyTrackPlaying]);
@@ -44,10 +42,8 @@ const Player = () => {
     useEffect(()=>{
         if(selectedTrackCurrentTime){
             setTrackProgress(selectedTrackCurrentTime);
-
             setSoundProgress(selectedTrackCurrentTime);
         }
-
     },[selectedTrackCurrentTime]);
 
     const previousTrack=()=>{
@@ -69,14 +65,16 @@ const Player = () => {
 
     return (
         <View style={[styles.container]}>
-            {   <StatusBar hidden={isFocused} backgroundColor={'transparent'} translucent={true}
-                                      animated={true}/>}
+
+            <StatusBar hidden={isFocused} backgroundColor={'transparent'} translucent={true} animated={true}/>
+
             <View style={styles.imagePart}>
                 <Pressable onPress={() => navigation.navigate('Home')} style={styles.buttonBack}>
                     <AntDesign name="arrowleft" size={30} color="#111"/>
                 </Pressable>
                 <Image source={currentTrack.image} style={styles.backgroundImage}/>
             </View>
+
             <View style={styles.playerUI}>
                 <View style={{alignItems: 'center', paddingTop: 40}}>
                     <RoundImage imageSource={currentTrack.image}/>

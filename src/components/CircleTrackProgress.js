@@ -1,12 +1,12 @@
-import React, {useState, useEffect} from 'react';
-import {StyleSheet, View,Animated,Button,Dimensions,Easing} from 'react-native';
+import React from 'react';
+import {View,Animated} from 'react-native';
 import Svg, {Circle} from "react-native-svg";
 
 const CircleTrackProgress=({style,progress,width,tintColor})=>{
 
     const AnimatedCircle=Animated.createAnimatedComponent(Circle);
     const size = width;
-    const strokeWidth = 12;
+    const strokeWidth = 5;
     const radius = (size-strokeWidth)/2;
     const circleProgress = radius * 2 * Math.PI;
 
